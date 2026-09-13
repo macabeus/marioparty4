@@ -47,7 +47,7 @@ Build notes for macOS, where the compilers run under wine:
   directory is this checkout), leave the wine services alone, and run `ninja` again. Anything
   that runs this build unattended needs a timeout on it.
 
-Neither affects the output bytes; the SHA-1 check is the arbiter.
+None of these affects the output bytes; the SHA-1 check is the arbiter.
 
 ---
 
