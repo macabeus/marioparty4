@@ -1,3 +1,56 @@
+## About this fork (`asmlift-benchmark` branch)
+
+This branch exists to make the [asmlift](https://github.com/macabeus/asmlift) decompiler
+benchmark reproducible. It is the upstream
+[mariopartyrd/marioparty4](https://github.com/mariopartyrd/marioparty4) tree at commit
+[`147b165a`](https://github.com/mariopartyrd/marioparty4/commit/147b165a83187ac9e6cfdc3bf52f2e73437b1ffd)
+("Backport mp5 macros", 2026-06-04), the exact commit the benchmark's functions are vendored
+from, plus one integration commit touching exactly two files:
+
+- `decomp.yaml`: new. It describes the `GMPE01_00` (USA Rev 0) build in the decomp.yaml format
+  and adds a `tools.asmlift` block pointing asmlift at the project's symbol source
+  (`tools.asmlift.elf`): `build/GMPE01_00/main.elf`, the DOL's ELF, which the ordinary build
+  already links. No extra build step. That ELF covers the DOL only: the 99 REL modules are
+  linked into separate `build/GMPE01_00/<module>/<module>.plf` files, which this key does not
+  name.
+- `README.md`: this section.
+- Nothing else differs from upstream: no `src/` byte, no rename, no build fix. The
+  `extern/musyx` submodule stays at upstream's pin.
+
+The build needs exactly what upstream's [Dependencies](#dependencies) section lists: Python 3,
+ninja and, on macOS or non-x86 Linux, wine. It also needs a Mario Party 4 USA Rev 0 (`GMPE01`,
+revision 00) disc image. To reproduce the benchmark rows, build the project (all 100 SHA-1
+lines must report OK), then follow the per-function scripts published in the benchmark report.
+The symbol source is `build/GMPE01_00/main.elf` and needs no further command:
+
+    git clone -b asmlift-benchmark https://github.com/macabeus/marioparty4
+    cd marioparty4
+    git submodule update --init --recursive
+    cp <your disc image> orig/GMPE01_00/
+    python3 configure.py
+    ninja
+
+Success is `100 files OK` from the `CHECK config/GMPE01_00/build.sha1` step, and the file
+`build/GMPE01_00/ok`.
+
+Build notes for macOS, where the compilers run under wine:
+
+- A compile or link step can fail with `ShellExecuteEx failed: Internal error.`. That is wine
+  failing to launch the tool, not a source or link error. Run `ninja` again; it resumes.
+- On the first wine command, wine starts background services (`services.exe`,
+  `winedevice.exe`, ...) that can inherit ninja's output pipe. ninja then waits forever a few
+  steps from the end (for example at `[193/197]`), with its log no longer growing although the
+  outputs exist. Stop only that `ninja` (Ctrl-C), leave the wine services alone, and run
+  `ninja` again. It finishes the remaining steps.
+- A single wine compile can also freeze at 0% CPU and never exit. The symptom is the same: the
+  ninja log stops growing. Stop only that stuck compiler process (check that its working
+  directory is this checkout), leave the wine services alone, and run `ninja` again. Anything
+  that runs this build unattended needs a timeout on it.
+
+Neither affects the output bytes; the SHA-1 check is the arbiter.
+
+---
+
 Mario Party 4  
 [![Build Status]][actions] [![Progress]][progress site] [![DOL Progress]][progress site] [![RELs Progress]][progress site] [![Discord Badge]][discord]
 =============
