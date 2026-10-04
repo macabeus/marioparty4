@@ -8,6 +8,7 @@ versions:
   paths:
     target: orig/GMPE01_00/sys/main.dol
     build_dir: build/GMPE01_00
+    map: build/GMPE01_00/main.elf.MAP
     compiled_target: build/GMPE01_00/main.dol
     elf: build/GMPE01_00/main.elf
 
